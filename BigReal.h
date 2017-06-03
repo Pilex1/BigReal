@@ -70,13 +70,16 @@ BigReal round1(BigReal x, unsigned int digits);
 BigReal sin1(BigReal x);
 BigReal cos1(BigReal x);
 BigReal tan1(BigReal x);
-BigReal csc(BigReal x);
-BigReal sec(BigReal x);
-BigReal cot(BigReal x);
+BigReal csc1(BigReal x);
+BigReal sec1(BigReal x);
+BigReal cot1(BigReal x);
 
 BigReal sinh1(BigReal x);
 BigReal cosh1(BigReal x);
 BigReal tanh1(BigReal x);
+BigReal csch1(BigReal x);
+BigReal sech1(BigReal x);
+BigReal coth1(BigReal x);
 
 BigReal exp1(BigReal x);
 

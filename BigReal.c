@@ -1433,19 +1433,24 @@ BigReal tan1(BigReal x) {
     return result;
 }
 
-BigReal csc(BigReal x) {
+// csc(x) = 1 / sin(x)
+BigReal csc1(BigReal x) {
     BigReal sinX = sin1(x);
     BigReal result = reciprocal(sinX);
     disposeBigReal(sinX);
     return result;
 }
-BigReal sec(BigReal x) {
+
+// sec(x) = 1 / cos(x)
+BigReal sec1(BigReal x) {
     BigReal cosX = cos1(x);
     BigReal result = reciprocal(cosX);
     disposeBigReal(cosX);
     return result;
 }
-BigReal cot(BigReal x) {
+
+// cot(x) = 1 / tan(x)
+BigReal cot1(BigReal x) {
     BigReal tanX = tan1(x);
     BigReal result = reciprocal(tanX);
     disposeBigReal(tanX);
@@ -1561,6 +1566,30 @@ BigReal tanh1(BigReal x) {
     BigReal result = divide(sinhX, coshX);
     disposeBigReal(sinhX);
     disposeBigReal(coshX);
+    return result;
+}
+
+// csch(x) = 1 / sinh(x)
+BigReal csch1(BigReal x) {
+    BigReal sinhX = sinh1(x);
+    BigReal result = reciprocal(sinhX);
+    disposeBigReal(sinhX);
+    return result;
+}
+
+// sech(x) = 1 / cosh(x)
+BigReal sech1(BigReal x) {
+    BigReal coshX = cosh1(x);
+    BigReal result = reciprocal(coshX);
+    disposeBigReal(coshX);
+    return result;
+}
+
+// coth(x) = 1 / tanh(x)
+BigReal coth1(BigReal x) {
+    BigReal tanhX = tanh1(x);
+    BigReal result = reciprocal(tanhX);
+    disposeBigReal(tanhX);
     return result;
 }
 

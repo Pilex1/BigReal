@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
 
-    testAll();
+    //testAll();
 
 
     //  printf("%s\n", toHexString(divide(newBigRealDec("1.2"), newBigRealDec("1.1"))));
