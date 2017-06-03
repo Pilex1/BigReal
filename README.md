@@ -7,15 +7,18 @@ A math library in C for storing numbers with arbitrary precision and performing 
 
 Supported functions
 
+Basic
 - Addition
 - Subtraction
 - Multiplication
 - Division
 
+Combinatorial
 - Factorial
 - Combinations (nCr)
 - Permutations (nPr)
 
+Trigonometric
 - Sin
 - Cos
 - Tan
@@ -23,6 +26,7 @@ Supported functions
 - Sec
 - Cot
 
+Hyperbolic trigonometric
 - Sinh
 - Cosh
 - Tanh
@@ -30,8 +34,10 @@ Supported functions
 - Sech
 - Coth
 
+Exponential
 - Exp
 
+Miscellaneous
 - Bitshifting
 - Equality comparison
 - Inequality comparisons
