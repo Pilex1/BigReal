@@ -5,69 +5,72 @@
 
 int main(int argc, char *argv[]) {
 
-   testAll();
+    testAll();
 
 
-    printf("%s\n", toHexString(divide(newBigRealDec("1.2"), newBigRealDec("1.1"))));
+    //  printf("%s\n", toHexString(divide(newBigRealDec("1.2"), newBigRealDec("1.1"))));
 
-    /*  BigReal x = factorial(newBigRealDec("6"));
-      printf("%s\n", toString(x));
+      /*  BigReal x = factorial(newBigRealDec("6"));
+        printf("%s\n", toString(x));
 
 
-      BigReal i = newBigRealDec("1");
-      while (isLess(i, newBigRealDec("20"))) {
-          printf("%s\n", toString(factorial(i)));
-          i = add(i, newBigRealDec("1"));
+        BigReal i = newBigRealDec("1");
+        while (isLess(i, newBigRealDec("20"))) {
+            printf("%s\n", toString(factorial(i)));
+            i = add(i, newBigRealDec("1"));
 
-      }*/
+        }*/
 
-      // printf("%s\n", toString(newBigRealDec("3.1415926535897932384626")));
-     //  newBigRealDec("3.1415926535897932384626");
+        // printf("%s\n", toString(newBigRealDec("3.1415926535897932384626")));
+       //  newBigRealDec("3.1415926535897932384626");
 
-       //  BigReal x = add(newBigRealHex("1.00000002D8BC02A996262B7A8F7023B5"), newBigRealHex("-0.00000002DF5B73E2AAE8722A341D78C"));
-       //  printf("%s\n", x);
+         //  BigReal x = add(newBigRealHex("1.00000002D8BC02A996262B7A8F7023B5"), newBigRealHex("-0.00000002DF5B73E2AAE8722A341D78C"));
+         //  printf("%s\n", x);
 
-      // BigReal x = add(newBigRealHex("-0.F9DC977B6350D39A70E8EEC2661AF83B"), newBigRealHex("-0.069B47CA8812A2EA69EDCDD89208A37B"));
-      // printf("%s\n", toString(x));
+        // BigReal x = add(newBigRealHex("-0.F9DC977B6350D39A70E8EEC2661AF83B"), newBigRealHex("-0.069B47CA8812A2EA69EDCDD89208A37B"));
+        // printf("%s\n", toString(x));
 
-       //printf("%s\n", toString(sin1(divide(newBigRealHex("3  .243F6A8885A308D313198A2E03707"), newBigRealHex("2")))));
-     //  printf("%s\n", toString(sin1(newBigRealHex("3.243F6A8885A308D313198A2E03707"))));
-     //  printf("%s\n", toString(sin1(newBigRealHex("1"))));
+         //printf("%s\n", toString(sin1(divide(newBigRealHex("3  .243F6A8885A308D313198A2E03707"), newBigRealHex("2")))));
+       //  printf("%s\n", toString(sin1(newBigRealHex("3.243F6A8885A308D313198A2E03707"))));
+       //  printf("%s\n", toString(sin1(newBigRealHex("1"))));
 
-       //printf("%s\n", toString(sin1(divide(newBigRealDec("3.1415926535897932384626"), newBigRealDec("2")))));
+         //printf("%s\n", toString(sin1(divide(newBigRealDec("3.1415926535897932384626"), newBigRealDec("2")))));
 
-      //sin1(newBigRealDec("3.1415926535897932384626"));
+        //sin1(newBigRealDec("3.1415926535897932384626"));
 
-   /*  BigReal i = factorial(newBigRealDec("100"));
-      while (isLessOrEqual(i,newBigRealDec("60"))) {
-          printf("%s\n", toHexString(i));
-          i = multiply(i, add(i, newBigRealHex("1")));
-      }*/
-      /*  printf("%s\n", toHexString(factorial(newBigRealDec("100"))));
-        printf("%s\n", toHexString(factorial(newBigRealDec("101"))));
-        printf("%s\n", toHexString(factorial(newBigRealDec("102"))));
-        printf("%s\n", toHexString(factorial(newBigRealDec("103"))));
-        printf("%s\n", toHexString(factorial(newBigRealDec("104"))));
-        printf("%s\n", toHexString(factorial(newBigRealDec("105"))));
-        printf("%s\n", toHexString(factorial(newBigRealDec("106"))));
-        printf("%s\n", toHexString(factorial(newBigRealDec("107"))));
-        printf("%s\n", toHexString(factorial(newBigRealDec("108"))));
-        printf("%s\n", toHexString(factorial(newBigRealDec("109"))));
-        printf("%s\n", toHexString(factorial(newBigRealDec("110"))));*/
+     /*  BigReal i = factorial(newBigRealDec("100"));
+        while (isLessOrEqual(i,newBigRealDec("60"))) {
+            printf("%s\n", toHexString(i));
+            i = multiply(i, add(i, newBigRealHex("1")));
+        }*/
+        /*  printf("%s\n", toHexString(factorial(newBigRealDec("100"))));
+          printf("%s\n", toHexString(factorial(newBigRealDec("101"))));
+          printf("%s\n", toHexString(factorial(newBigRealDec("102"))));
+          printf("%s\n", toHexString(factorial(newBigRealDec("103"))));
+          printf("%s\n", toHexString(factorial(newBigRealDec("104"))));
+          printf("%s\n", toHexString(factorial(newBigRealDec("105"))));
+          printf("%s\n", toHexString(factorial(newBigRealDec("106"))));
+          printf("%s\n", toHexString(factorial(newBigRealDec("107"))));
+          printf("%s\n", toHexString(factorial(newBigRealDec("108"))));
+          printf("%s\n", toHexString(factorial(newBigRealDec("109"))));
+          printf("%s\n", toHexString(factorial(newBigRealDec("110"))));*/
 
     printf("\n\n\n");
 
     printf("sin(π)    = %s\n", toHexString(sin1(newBigRealDec("3.1415926535897932384626"))));
     printf("sin(π/2)  = %s\n", toHexString(sin1(newBigRealDec("1.5707963267948966192313"))));
-    printf("sin(π/4)  = %s\n\n\n", toHexString(sin1(newBigRealDec("0.7853981633974483096156"))));
+    printf("sin(π/3)  = %s\n", toHexString(sin1(newBigRealDec("1.0471975511965977461542"))));
+    printf("sin(π/6)  = %s\n\n\n", toHexString(sin1(newBigRealDec("0.5235987755982988730771"))));
 
     printf("cos(π)    = %s\n", toHexString(cos1(newBigRealDec("3.1415926535897932384626"))));
     printf("cos(π/2)  = %s\n", toHexString(cos1(newBigRealDec("1.5707963267948966192313"))));
-    printf("cos(π/4)  = %s\n\n\n", toHexString(cos1(newBigRealDec("0.7853981633974483096156"))));
+    printf("cos(π/3)  = %s\n", toHexString(cos1(newBigRealDec("1.0471975511965977461542"))));
+    printf("cos(π/6)  = %s\n\n\n", toHexString(cos1(newBigRealDec("0.5235987755982988730771"))));
 
     printf("tan(π)    = %s\n", toHexString(tan1(newBigRealDec("3.1415926535897932384626"))));
-    printf("tan(π/2)  = %s\n", toHexString(sin1(newBigRealDec("1.5707963267948966192313"))));
-    printf("tan(π/4)  = %s\n\n\n", toHexString(sin1(newBigRealDec("0.7853981633974483096156"))));
+    printf("tan(π/2)  = %s\n", toHexString(tan1(newBigRealDec("1.5707963267948966192313"))));
+    printf("tan(π/3)  = %s\n", toHexString(tan1(newBigRealDec("1.0471975511965977461542"))));
+    printf("tan(π/6)  = %s\n\n\n", toHexString(tan1(newBigRealDec("0.5235987755982988730771"))));
 
     printf("sinh(1)   = %s\n", toHexString(sinh1(newBigRealDec("1"))));
     printf("sinh(-1)  = %s\n", toHexString(sinh1(newBigRealDec("-1"))));

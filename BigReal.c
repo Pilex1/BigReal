@@ -756,12 +756,7 @@ static BigReal multiplyS(BigReal x, BigReal y, int safe) {
             currentSum->sign = POSITIVE;
             currentSum->values[j] = digit;
             if (j == 0) {
-                if (safe == TRUE) {
-                    if (carry == 0) {
-                        return NULL;
-                    }
-                    //assert(carry == 0);
-                }
+                assert(carry == 0);
             } else {
                 currentSum->values[j - 1] = carry;
             }
@@ -1019,9 +1014,6 @@ BigReal factorial(BigReal x) {
         temp = multiply(result, i);
         disposeBigReal(result);
         result = temp;
-        if (result == NULL) {
-            return NULL;
-        }
 
         temp = add(i, one);
         disposeBigReal(i);
@@ -1332,11 +1324,7 @@ BigReal sin1(BigReal x) {
     while (flag == TRUE) {
 
         BigReal xPowN = powI(x, n);
-        if (xPowN == NULL) break;
-
         BigReal nFactorial = factorial(n);
-        if (nFactorial == NULL) break;
-
         BigReal term = divide(xPowN, nFactorial);
         term->sign = sign;
 
@@ -1345,7 +1333,16 @@ BigReal sin1(BigReal x) {
             // stop the loop if the terms have rounded down to zero
             flag = FALSE;
         }
-        printf("%s\t%s\t%s\n", toHexString(xPowN), toHexString(nFactorial), toHexString(term));
+        if (xPowN->values[0] > 0) {
+            // stop the loop if the numerator is growing very large
+            flag = FALSE;
+        }
+        if (nFactorial->values[0] > 0) {
+            // stop the loop if the denominator is growing very large
+            flag = FALSE;
+        }
+
+        //printf("%s\t%s\t%s\n", toHexString(xPowN), toHexString(nFactorial), toHexString(term));
 
         disposeBigReal(xPowN);
         disposeBigReal(nFactorial);
@@ -1384,13 +1381,24 @@ BigReal cos1(BigReal x) {
 
         BigReal xPowN = powI(x, n);
         BigReal nFactorial = factorial(n);
-
         BigReal term = divide(xPowN, nFactorial);
         term->sign = sign;
+
         checkForZero(term);
         if (isEqual(term, zero)) {
+            // stop the loop if the terms have rounded down to zero
             flag = FALSE;
         }
+        if (xPowN->values[0] > 0) {
+            // stop the loop if the numerator is growing very large
+            flag = FALSE;
+        }
+        if (nFactorial->values[0] > 0) {
+            // stop the loop if the denominator is growing very large
+            flag = FALSE;
+        }
+
+        //printf("%s\t%s\t%s\n", toHexString(xPowN), toHexString(nFactorial), toHexString(term));
 
         disposeBigReal(xPowN);
         disposeBigReal(nFactorial);
@@ -1456,13 +1464,23 @@ BigReal sinh1(BigReal x) {
 
         BigReal xPowN = powI(x, n);
         BigReal nFactorial = factorial(n);
-
         BigReal term = divide(xPowN, nFactorial);
-        checkForZero(term);
 
+        checkForZero(term);
         if (isEqual(term, zero)) {
+            // stop the loop if the terms have rounded down to zero
             flag = FALSE;
         }
+        if (xPowN->values[0] > 0) {
+            // stop the loop if the numerator is growing very large
+            flag = FALSE;
+        }
+        if (nFactorial->values[0] > 0) {
+            // stop the loop if the denominator is growing very large
+            flag = FALSE;
+        }
+
+        //printf("%s\t%s\t%s\n", toHexString(xPowN), toHexString(nFactorial), toHexString(term));
 
         disposeBigReal(xPowN);
         disposeBigReal(nFactorial);
@@ -1497,13 +1515,23 @@ BigReal cosh1(BigReal x) {
 
         BigReal xPowN = powI(x, n);
         BigReal nFactorial = factorial(n);
-
         BigReal term = divide(xPowN, nFactorial);
-        checkForZero(term);
 
+        checkForZero(term);
         if (isEqual(term, zero)) {
+            // stop the loop if the terms have rounded down to zero
             flag = FALSE;
         }
+        if (xPowN->values[0] > 0) {
+            // stop the loop if the numerator is growing very large
+            flag = FALSE;
+        }
+        if (nFactorial->values[0] > 0) {
+            // stop the loop if the denominator is growing very large
+            flag = FALSE;
+        }
+
+        //printf("%s\t%s\t%s\n", toHexString(xPowN), toHexString(nFactorial), toHexString(term));
 
         disposeBigReal(xPowN);
         disposeBigReal(nFactorial);
@@ -1548,13 +1576,22 @@ BigReal exp1(BigReal x) {
 
         BigReal xPowN = powI(x, n);
         BigReal nFactorial = factorial(n);
-
         BigReal term = divide(xPowN, nFactorial);
-        checkForZero(term);
 
+        checkForZero(term);
         if (isEqual(term, zero)) {
+            // stop the loop if the terms have rounded down to zero
             flag = FALSE;
         }
+        if (xPowN->values[0] > 0) {
+            // stop the loop if the numerator is growing very large
+            flag = FALSE;
+        }
+        if (nFactorial->values[0] > 0) {
+            // stop the loop if the denominator is growing very large
+            flag = FALSE;
+        }
+
 
         disposeBigReal(xPowN);
         disposeBigReal(nFactorial);
