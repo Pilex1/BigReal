@@ -26,10 +26,16 @@ static storeType *hexStringToBigInt(char *str, int maxSize);
 static storeType *hexStringToBigIntReverse(char *str, int maxSize);
 static int hexCharToInt(char c);
 static char intToHexChar(int x);
-static char *trim(char *str);
 static int *splitToHexArr(BigReal x);
 static int *shiftArr(int *arr, int length, int shift);
 static int powRI(int x, unsigned int y);
+
+static char *trimTrailingZeroes(char *str);
+static char *trimLeadingZeroes(char *str);
+
+static BigReal multiplyS(BigReal x, BigReal y, int safe);
+static BigReal bitShiftLeftS(BigReal x, int bits, int safe);
+static BigReal bitShiftRightS(BigReal x, int bits, int safe);
 
 
 // calculates x to the power of y
@@ -52,8 +58,13 @@ static BigReal powI(BigReal x, BigReal y) {
     BigReal result = newBigRealHex("1");
     BigReal yCopy = copy(y);
     while (isGreaterOrEqual(yCopy, one)) {
-        result = multiply(result, x);
-        yCopy = subtract(yCopy, one);
+        BigReal temp = multiply(result, x);
+        disposeBigReal(result);
+        result = temp;
+
+        temp = subtract(yCopy, one);
+        disposeBigReal(yCopy);
+        yCopy = temp;
     }
     return result;
 }
@@ -292,7 +303,7 @@ BigReal newBigRealDec(char *originalString) {
         disposeBigReal(val);
 
         // b /= 10
-        temp = multiply(b, tenth);
+        temp = multiplyS(b, tenth, FALSE);
         disposeBigReal(b);
         b = temp;
 
@@ -454,7 +465,7 @@ BigReal add(BigReal x, BigReal y) {
         if (i == 0) {
             // assert that there is no carry on the left most digit
             // otherwise this indicates overflow
-            assert(carry == 0);
+            //assert(carry == 0);
         }
         i--;
     }
@@ -719,7 +730,7 @@ y->sign = ySign;
 return result;
 */
 
-BigReal multiply(BigReal x, BigReal y) {
+static BigReal multiplyS(BigReal x, BigReal y, int safe) {
 
     // schoolbook method O(n^2)
 
@@ -745,7 +756,12 @@ BigReal multiply(BigReal x, BigReal y) {
             currentSum->sign = POSITIVE;
             currentSum->values[j] = digit;
             if (j == 0) {
-                assert(carry == 0);
+                if (safe == TRUE) {
+                    if (carry == 0) {
+                        return NULL;
+                    }
+                    //assert(carry == 0);
+                }
             } else {
                 currentSum->values[j - 1] = carry;
             }
@@ -761,7 +777,14 @@ BigReal multiply(BigReal x, BigReal y) {
 
         int bitShift = DIGITS - 1 - i - DECIMAL_DIGITS;
 
-        BigReal temp = bitShiftLeft(partialSum, bitShift);
+        BigReal temp;
+        if (bitShift < 0) {
+            // don't worry about underflow ==> rounds down to zero
+            temp = bitShiftLeftS(partialSum, bitShift, FALSE);
+        } else {
+            // assert failure on overflow
+            temp = bitShiftLeftS(partialSum, bitShift, safe);
+        }
         disposeBigReal(partialSum);
         partialSum = temp;
 
@@ -777,7 +800,12 @@ BigReal multiply(BigReal x, BigReal y) {
     result->sign = x->sign * y->sign;
 
     return result;
+}
 
+BigReal multiply(BigReal x, BigReal y) {
+    //return multiplyS(x, y, TRUE);
+    // temporary
+    return multiplyS(x, y, FALSE);
 }
 
 BigReal divide(BigReal x, BigReal y) {
@@ -904,10 +932,12 @@ BigReal reciprocal(BigReal originalDivisor) {
 
     // we need the divisor to be an integer
     // so we keep shifting the divisor leftwards until it is an integer
+    // or until we can't shift anymore
+    // (this will result in rounding errors)
     // for each divisor shift leftwards, the digitPointer shifts
     // to the left
 
-    while (!isInteger(divisor)) {
+    while (!isInteger(divisor) && divisor->values[0] == 0) {
         // shift the divisor leftwards
         BigReal temp = bitShiftLeft(divisor, 1);
         disposeBigReal(divisor);
@@ -950,10 +980,17 @@ BigReal reciprocal(BigReal originalDivisor) {
 
         disposeBigReal(multiple);
 
+        /*
         // add a 0 to the end of the dividend i.e. shifting to the left
         temp = bitShiftLeft(dividend, 1);
         disposeBigReal(dividend);
         dividend = temp;
+        */
+
+        // shift the divisor to the right
+        temp = bitShiftRight(divisor, 1);
+        disposeBigReal(divisor);
+        divisor = temp;
 
         digitPointer++;
     }
@@ -982,10 +1019,17 @@ BigReal factorial(BigReal x) {
         temp = multiply(result, i);
         disposeBigReal(result);
         result = temp;
+        if (result == NULL) {
+            return NULL;
+        }
 
         temp = add(i, one);
         disposeBigReal(i);
         i = temp;
+
+        // char *str = toHexString(i);
+         //printf("Factorial progress: %s\n", str);
+        // free(str);
     }
     disposeBigReal(i);
     disposeBigReal(one);
@@ -1216,19 +1260,21 @@ static int *shiftArr(int *arr, int length, int shift) {
     return result;
 }
 
-BigReal bitShiftLeft(BigReal x, int bits) {
+BigReal bitShiftLeftS(BigReal x, int bits, int safe) {
     BigReal result;
     if (bits < 0) {
-        result = bitShiftRight(x, -bits);
+        result = bitShiftRightS(x, -bits, safe);
     } else {
         result = newBigRealHex("0");
         int i = DIGITS - 1;
         while (i >= 0) {
             int j = i - bits;
             if (j < 0) {
-                // make sure we are not losing any data when
-                // shifting
-                //assert(x->values[i] == 0);
+                if (safe == TRUE) {
+                    // make sure we are not losing any data when
+                    // shifting
+                    //assert(x->values[i] == 0);
+                }
             } else {
                 result->values[j] = x->values[i];
             }
@@ -1239,19 +1285,26 @@ BigReal bitShiftLeft(BigReal x, int bits) {
     return result;
 }
 
-BigReal bitShiftRight(BigReal x, int bits) {
+BigReal bitShiftLeft(BigReal x, int bits) {
+    return bitShiftLeftS(x, bits, TRUE);
+}
+
+static BigReal bitShiftRightS(BigReal x, int bits, int safe) {
     BigReal result;
     if (bits < 0) {
-        result = bitShiftLeft(x, -bits);
+        result = bitShiftLeftS(x, -bits, safe);
     } else {
         result = newBigRealHex("0");
         int i = 0;
         while (i < DIGITS) {
             int j = i + bits;
             if (j >= DIGITS) {
-                // mae sure we are not losing any data when
-                // shifting
-                //assert(x->values[i] == 0);
+                if (safe == TRUE) {
+                    // mae sure we are not losing any data when
+                    // shifting
+                    //assert(x->values[i] == 0);
+
+                }
             } else {
                 result->values[j] = x->values[i];
             }
@@ -1260,6 +1313,10 @@ BigReal bitShiftRight(BigReal x, int bits) {
     }
     result->sign = x->sign;
     return result;
+}
+
+BigReal bitShiftRight(BigReal x, int bits) {
+    return bitShiftRightS(x, bits, TRUE);
 }
 
 // Maclaurin series
@@ -1275,14 +1332,20 @@ BigReal sin1(BigReal x) {
     while (flag == TRUE) {
 
         BigReal xPowN = powI(x, n);
+        if (xPowN == NULL) break;
+
         BigReal nFactorial = factorial(n);
+        if (nFactorial == NULL) break;
 
         BigReal term = divide(xPowN, nFactorial);
         term->sign = sign;
+
         checkForZero(term);
         if (isEqual(term, zero)) {
+            // stop the loop if the terms have rounded down to zero
             flag = FALSE;
         }
+        printf("%s\t%s\t%s\n", toHexString(xPowN), toHexString(nFactorial), toHexString(term));
 
         disposeBigReal(xPowN);
         disposeBigReal(nFactorial);
@@ -1291,7 +1354,6 @@ BigReal sin1(BigReal x) {
         BigReal temp = add(result, term);
         disposeBigReal(result);
         result = temp;
-        // printf("%s\n", toString(result));
         disposeBigReal(term);
 
         // increment n by 2
@@ -1337,7 +1399,6 @@ BigReal cos1(BigReal x) {
         BigReal temp = add(result, term);
         disposeBigReal(result);
         result = temp;
-        //printf("%s\n", toString(result));
         disposeBigReal(term);
 
         // increment n by 2
@@ -1383,6 +1444,139 @@ BigReal cot(BigReal x) {
     return result;
 }
 
+// sinh(x) = x + (x^3)/3! + (x^5)/5! + ...
+BigReal sinh1(BigReal x) {
+    BigReal result = newBigRealHex("0");
+
+    BigReal n = newBigRealHex("1");
+    BigReal two = newBigRealHex("2");
+    BigReal zero = newBigRealHex("0");
+    int flag = TRUE;
+    while (flag == TRUE) {
+
+        BigReal xPowN = powI(x, n);
+        BigReal nFactorial = factorial(n);
+
+        BigReal term = divide(xPowN, nFactorial);
+        checkForZero(term);
+
+        if (isEqual(term, zero)) {
+            flag = FALSE;
+        }
+
+        disposeBigReal(xPowN);
+        disposeBigReal(nFactorial);
+
+        // add the term to the result
+        BigReal temp = add(result, term);
+        disposeBigReal(result);
+        result = temp;
+        disposeBigReal(term);
+
+        // increment n by 2
+        temp = add(n, two);
+        disposeBigReal(n);
+        n = temp;
+
+    }
+    disposeBigReal(two);
+    disposeBigReal(n);
+
+    return result;
+}
+
+// cosh(x) = 1 + (x^2)/2! + (x^4)/4! + ...
+BigReal cosh1(BigReal x) {
+    BigReal result = newBigRealHex("0");
+
+    BigReal n = newBigRealHex("0");
+    BigReal two = newBigRealHex("2");
+    BigReal zero = newBigRealHex("0");
+    int flag = TRUE;
+    while (flag == TRUE) {
+
+        BigReal xPowN = powI(x, n);
+        BigReal nFactorial = factorial(n);
+
+        BigReal term = divide(xPowN, nFactorial);
+        checkForZero(term);
+
+        if (isEqual(term, zero)) {
+            flag = FALSE;
+        }
+
+        disposeBigReal(xPowN);
+        disposeBigReal(nFactorial);
+
+        // add the term to the result
+        BigReal temp = add(result, term);
+        disposeBigReal(result);
+        result = temp;
+        disposeBigReal(term);
+
+        // increment n by 2
+        temp = add(n, two);
+        disposeBigReal(n);
+        n = temp;
+
+    }
+    disposeBigReal(two);
+    disposeBigReal(n);
+
+    return result;
+}
+
+// tanh(x) = sinh(x) / cosh(x)
+BigReal tanh1(BigReal x) {
+    BigReal sinhX = sinh1(x);
+    BigReal coshX = cosh1(x);
+    BigReal result = divide(sinhX, coshX);
+    disposeBigReal(sinhX);
+    disposeBigReal(coshX);
+    return result;
+}
+
+// e^x = 1 + x + (x^2)/2! + (x^3)/3! + (x^4)/4! + ...
+BigReal exp1(BigReal x) {
+    BigReal result = newBigRealHex("0");
+
+    BigReal n = newBigRealHex("0");
+    BigReal one = newBigRealHex("1");
+    BigReal zero = newBigRealHex("0");
+    int flag = TRUE;
+    while (flag == TRUE) {
+
+        BigReal xPowN = powI(x, n);
+        BigReal nFactorial = factorial(n);
+
+        BigReal term = divide(xPowN, nFactorial);
+        checkForZero(term);
+
+        if (isEqual(term, zero)) {
+            flag = FALSE;
+        }
+
+        disposeBigReal(xPowN);
+        disposeBigReal(nFactorial);
+
+        // add the term to the result
+        BigReal temp = add(result, term);
+        disposeBigReal(result);
+        result = temp;
+        disposeBigReal(term);
+
+        // increment n by 1
+        temp = add(n, one);
+        disposeBigReal(n);
+        n = temp;
+
+    }
+    disposeBigReal(one);
+    disposeBigReal(n);
+
+    return result;
+}
+
 
 static char intToHexChar(int x) {
     assert(x >= 0 && x <= 15);
@@ -1408,38 +1602,6 @@ static char *uintToHexString(unsigned int x) {
     }
     string[hexSize] = '\0';
     return string;
-}
-
-// trims leading and trailing zeroes
-// keeping in mind negative sign
-// removes radix point if there is no decimal part
-static char *trim(char *str) {
-    // trim leading zeroes
-    while (*str == '0') {
-        str++;
-    }
-
-    //trim negative sign and zeroes
-    while (*str == '-' && *(str + 1) == '0') {
-        str++;
-        *str = '-';
-    }
-
-
-    //trim trailing zeroes
-    int i = strlen(str) - 1;
-    while (*(str + i) == '0') {
-        *(str + i) = '\0';
-        i--;
-    }
-
-    //trim radix point if there is nothing following
-    int len = strlen(str);
-    if (str[len - 1] == '.') {
-        str[len - 1] = '\0';
-    }
-
-    return str;
 }
 
 char *toDecString(BigReal xOld) {
@@ -1518,59 +1680,89 @@ char *toDecString(BigReal xOld) {
 
 }
 
+static char *trimLeadingZeroes(char *str) {
+    char *result = malloc(strlen(str) + 1);
+    while (str[0] == '0') {
+        str++;
+    }
+    strcpy(result, str);
+    return result;
+}
+
+static char *trimTrailingZeroes(char *str) {
+    int end = strlen(str);
+    char *result = malloc(end + 1);
+    strcpy(result, str);
+    end--;
+    while (result[end] == '0') {
+        result[end] = '\0';
+        end--;
+    }
+    return result;
+}
+
 char *toHexString(BigReal x) {
 
-    // calculating memory needed for the string
-    // integer part + radix point + decimal part + null terminator
-    int size = INTEGER_DIGITS * HEX_DIGITS_PER_DIGIT + 1 + DECIMAL_DIGITS
-        * HEX_DIGITS_PER_DIGIT + 1;
+    // calculating memory needed for integer part of the string
+    // integer part + null terminator (negative sign ignored here)
+    int integerSize = INTEGER_DIGITS * HEX_DIGITS_PER_DIGIT + 1;
 
-    // if the number is negative, we also need space for an
-    // extra character for the minus sign
-    if (x->sign == NEGATIVE) {
-        size++;
-    }
+    // calculating memory needed for decimal part of the string
+    // decimalp part + null terminator
+    int decimalSize = DECIMAL_DIGITS * HEX_DIGITS_PER_DIGIT + 1;
 
-    char *string = malloc(size);
-    // initialise to "" if non-negative or "-" if negative
-    if (x->sign == POSITIVE || x->sign == ZERO) {
-        string[0] = '\0';
-    } else {
-        string[0] = '-';
-        string[1] = '\0';
-    }
+    // calculating memory needed for the full string
+    // negative sign + integerSize - null terminator +
+    // radix point + decimalSize
+    int size = integerSize - 1 + 1 + decimalSize;
 
-
+    char *integerString = malloc(integerSize);
+    integerString[0] = '\0';
     int i = 0;
     // concatenate all the integer digits of the number
     while (i < INTEGER_DIGITS) {
         char *integer = uintToHexString(x->values[INTEGER_INDEX + i]);
-        strcat(string, integer);
+        strcat(integerString, integer);
         free(integer);
         i++;
     }
 
-
-    // concatenate radix point
-    strcat(string, ".");
-
+    char *decimalString = malloc(decimalSize);
+    decimalString[0] = '\0';
     i = 0;
     // concatenate all the decimal digits of the number
     while (i < DECIMAL_DIGITS) {
         char *decimal = uintToHexString(x->values[DECIMAL_INDEX + i]);
-        strcat(string, decimal);
+        strcat(decimalString, decimal);
         free(decimal);
         i++;
     }
 
-    string = trim(string);
 
-    if (string[0] == '\0') {
-        string[0] = '0';
-        string[1] = '\0';
+    char *trimmedIntegerString = trimLeadingZeroes(integerString);
+    if (trimmedIntegerString[0] == '\0') {
+        trimmedIntegerString[0] = '0';
+        trimmedIntegerString[1] = '\0';
     }
-    return string;
+    char *trimmedDecimalString = trimTrailingZeroes(decimalString);
 
+    char *fullString = malloc(size);
+    fullString[0] = '\0';
+    if (x->sign == NEGATIVE) {
+        strcat(fullString, "-");
+    }
+    strcat(fullString, trimmedIntegerString);
+    if (trimmedDecimalString[0] != '\0') {
+        strcat(fullString, ".");
+        strcat(fullString, trimmedDecimalString);
+    }
+
+    free(trimmedIntegerString);
+    free(trimmedDecimalString);
+    free(integerString);
+    free(decimalString);
+
+    return fullString;
 }
 
 int isInteger(BigReal x) {
@@ -1582,7 +1774,6 @@ int isInteger(BigReal x) {
     }
     return result;
 }
-
 
 BigReal copy(BigReal x) {
     BigReal result = malloc(sizeof(bigReal));

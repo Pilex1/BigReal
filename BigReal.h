@@ -66,7 +66,7 @@ BigReal floor1(BigReal x);
 BigReal ceil1(BigReal x);
 BigReal round1(BigReal x, unsigned int digits);
 
-// same with sin, cos, tan, sinh and cosh
+// same with these
 BigReal sin1(BigReal x);
 BigReal cos1(BigReal x);
 BigReal tan1(BigReal x);
@@ -76,6 +76,9 @@ BigReal cot(BigReal x);
 
 BigReal sinh1(BigReal x);
 BigReal cosh1(BigReal x);
+BigReal tanh1(BigReal x);
+
+BigReal exp1(BigReal x);
 
 int isEqual(BigReal x, BigReal y);
 int isLessOrEqual(BigReal x, BigReal y);
@@ -86,4 +89,4 @@ int isGreaterOrEqual(BigReal x, BigReal y);
 int isInteger(BigReal x);
 
 char *toHexString(BigReal x);
-char *toDecString(BigReal x);
+char *toDecString(BigReal x); // not currentl working

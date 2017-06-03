@@ -382,6 +382,17 @@ void testDivide(void) {
     testReciprocalAndFree(newBigRealHex("-FFFFF.FEDFEDF1234"));
     testReciprocalAndFree(newBigRealHex("-0.123456789"));
     testReciprocalAndFree(newBigRealHex("-0.00000000FEDC"));
+    
+    // dividing by itself should be one
+    testDivideAndFree(newBigRealHex("1"), newBigRealHex("1"), newBigRealHex("1"));
+    testDivideAndFree(newBigRealHex("2"), newBigRealHex("2"), newBigRealHex("1"));
+    testDivideAndFree(newBigRealHex("FFFFFFFFFF"), newBigRealHex("FFFFFFFFFF"), newBigRealHex("1"));
+    testDivideAndFree(newBigRealHex("0.1111111111"), newBigRealHex("0.1111111111"), newBigRealHex("1"));
+    testDivideAndFree(newBigRealHex("-1"), newBigRealHex("-1"), newBigRealHex("1"));
+    testDivideAndFree(newBigRealHex("-2"), newBigRealHex("-2"), newBigRealHex("1"));
+    testDivideAndFree(newBigRealHex("-FFFFFFFFFF"), newBigRealHex("-FFFFFFFFFF"), newBigRealHex("1"));
+    testDivideAndFree(newBigRealHex("-0.1111111111"), newBigRealHex("-0.1111111111"), newBigRealHex("1"));
+
 
     // miscellaneous
     testDivideAndFree(newBigRealHex("1"), newBigRealHex("10"), newBigRealHex("0.1"));
