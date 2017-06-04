@@ -7,7 +7,7 @@ A math library in C for storing numbers with arbitrary precision and performing 
 
 Supported functions
 
-Basic
+Standard
 - Addition
 - Subtraction
 - Multiplication
